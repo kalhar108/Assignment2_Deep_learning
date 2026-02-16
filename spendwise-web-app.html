@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpendWise AI - Smart Expense Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;1,9..40,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --card: #12121a;
+            --card-hover: #1a1a28;
+            --accent: #6c5ce7;
+            --accent-glow: rgba(108, 92, 231, 0.3);
+            --green: #00cec9;
+            --red: #ff6b6b;
+            --yellow: #feca57;
+            --text: #e8e8f0;
+            --text-dim: #8888a0;
+            --border: #2a2a3a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Ambient background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 20%, rgba(108, 92, 231, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 80%, rgba(0, 206, 201, 0.05) 0%, transparent 50%);
+            z-index: -1;
+            animation: drift 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes drift {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(-5%, -3%) rotate(2deg); }
+        }
+
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0 32px;
+        }
+
+        .logo {
+            font-family: 'Instrument Serif', serif;
+            font-size: 28px;
+            font-style: italic;
+            background: linear-gradient(135deg, var(--accent), var(--green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo span {
+            font-style: normal;
+            opacity: 0.6;
+            font-size: 14px;
+            font-family: 'DM Sans', sans-serif;
+            -webkit-text-fill-color: var(--text-dim);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 30px var(--accent-glow);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--accent);
+            color: var(--text);
+        }
+
+        /* Dashboard Grid */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 16px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            background: var(--card-hover);
+            border-color: rgba(108, 92, 231, 0.3);
+        }
+
+        .card-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+        }
+
+        .card-value {
+            font-family: 'Instrument Serif', serif;
+            font-size: 36px;
+        }
+
+        .card-value.green { color: var(--green); }
+        .card-value.red { color: var(--red); }
+        .card-value.accent { color: var(--accent); }
+
+        .card-sub {
+            font-size: 13px;
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
+
+        .card-sub .up { color: var(--green); }
+        .card-sub .down { color: var(--red); }
+
+        /* AI Insights Card */
+        .ai-insights {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, rgba(108, 92, 231, 0.1), rgba(0, 206, 201, 0.05));
+            border-color: rgba(108, 92, 231, 0.2);
+        }
+
+        .ai-insights-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .ai-badge {
+            background: var(--accent);
+            color: white;
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .insight-item {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .insight-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .insight-title {
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .insight-text {
+            font-size: 13px;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        /* Transactions Section */
+        .transactions-section {
+            grid-column: 1 / 3;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .transaction-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .transaction-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: var(--border);
+        }
+
+        .tx-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-right: 14px;
+            flex-shrink: 0;
+        }
+
+        .tx-details {
+            flex: 1;
+        }
+
+        .tx-name {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .tx-category {
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+
+        .tx-amount {
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .tx-amount.expense { color: var(--red); }
+        .tx-amount.income { color: var(--green); }
+
+        .tx-date {
+            font-size: 12px;
+            color: var(--text-dim);
+            text-align: right;
+            margin-left: 16px;
+        }
+
+        /* Chart Section */
+        .chart-card {
+            grid-column: 3;
+            grid-row: span 2;
+        }
+
+        .donut-chart {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+        }
+
+        .donut-chart svg {
+            transform: rotate(-90deg);
+        }
+
+        .donut-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .donut-center .amount {
+            font-family: 'Instrument Serif', serif;
+            font-size: 24px;
+        }
+
+        .donut-center .label {
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        .chart-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .legend-name {
+            flex: 1;
+            color: var(--text-dim);
+        }
+
+        .legend-value {
+            font-weight: 700;
+        }
+
+        /* Add Expense Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px;
+            width: 90%;
+            max-width: 440px;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal h2 {
+            font-family: 'Instrument Serif', serif;
+            font-size: 24px;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            margin-bottom: 6px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--accent);
+        }
+
+        .form-group select option {
+            background: var(--card);
+        }
+
+        .type-toggle {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .type-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .type-btn.active-expense {
+            background: rgba(255, 107, 107, 0.15);
+            border-color: var(--red);
+            color: var(--red);
+        }
+
+        .type-btn.active-income {
+            background: rgba(0, 206, 201, 0.15);
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .modal-actions .btn {
+            flex: 1;
+        }
+
+        /* AI Chat */
+        .ai-chat-toggle {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: var(--accent);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 30px var(--accent-glow);
+            transition: all 0.3s;
+            z-index: 90;
+        }
+
+        .ai-chat-toggle:hover {
+            transform: scale(1.05);
+        }
+
+        .ai-chat-panel {
+            display: none;
+            position: fixed;
+            bottom: 90px;
+            right: 24px;
+            width: 380px;
+            max-height: 500px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+            z-index: 90;
+            animation: slideUp 0.3s ease-out;
+            flex-direction: column;
+        }
+
+        .ai-chat-panel.active {
+            display: flex;
+        }
+
+        .chat-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-header h3 {
+            font-size: 15px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            max-height: 340px;
+        }
+
+        .chat-msg {
+            margin-bottom: 12px;
+            max-width: 85%;
+        }
+
+        .chat-msg.ai {
+            margin-right: auto;
+        }
+
+        .chat-msg.user {
+            margin-left: auto;
+        }
+
+        .chat-msg .bubble {
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .chat-msg.ai .bubble {
+            background: rgba(108, 92, 231, 0.1);
+            border: 1px solid rgba(108, 92, 231, 0.2);
+        }
+
+        .chat-msg.user .bubble {
+            background: var(--accent);
+            color: white;
+        }
+
+        .chat-input-area {
+            display: flex;
+            padding: 12px;
+            border-top: 1px solid var(--border);
+            gap: 8px;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .chat-input-area button {
+            padding: 10px 14px;
+            background: var(--accent);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            .transactions-section, .chart-card, .ai-insights {
+                grid-column: 1;
+            }
+            .chart-card { grid-row: auto; }
+            .insights-grid { grid-template-columns: 1fr; }
+            .ai-chat-panel { width: calc(100% - 48px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div>
+                <div class="logo">SpendWise <span>AI</span></div>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-ghost" onclick="exportData()">Export CSV</button>
+                <button class="btn btn-primary" onclick="openModal()">+ Add Expense</button>
+            </div>
+        </header>
+
+        <!-- Dashboard -->
+        <div class="dashboard">
+            <!-- Summary Cards -->
+            <div class="card" id="balance-card">
+                <div class="card-label">Total Balance</div>
+                <div class="card-value accent" id="total-balance">$4,280.50</div>
+                <div class="card-sub"><span class="up">↑ 12%</span> from last month</div>
+            </div>
+            <div class="card">
+                <div class="card-label">Monthly Income</div>
+                <div class="card-value green" id="total-income">$6,500.00</div>
+                <div class="card-sub">3 transactions</div>
+            </div>
+            <div class="card">
+                <div class="card-label">Monthly Expenses</div>
+                <div class="card-value red" id="total-expenses">$2,219.50</div>
+                <div class="card-sub"><span class="down">↑ 8%</span> from last month</div>
+            </div>
+
+            <!-- AI Insights -->
+            <div class="card ai-insights" id="ai-insights-card">
+                <div class="ai-insights-header">
+                    <span class="ai-badge">AI</span>
+                    <span class="section-title">Smart Insights</span>
+                </div>
+                <div class="insights-grid" id="insights-container">
+                    <div class="insight-item">
+                        <div class="insight-icon">🎯</div>
+                        <div class="insight-title">Spending Pattern</div>
+                        <div class="insight-text">Your food expenses are 23% higher than your 3-month average. Consider meal prepping on weekends.</div>
+                    </div>
+                    <div class="insight-item">
+                        <div class="insight-icon">💡</div>
+                        <div class="insight-title">Savings Opportunity</div>
+                        <div class="insight-text">You could save $180/mo by switching to a cheaper streaming bundle. You have 4 active subscriptions.</div>
+                    </div>
+                    <div class="insight-item">
+                        <div class="insight-icon">📈</div>
+                        <div class="insight-title">Positive Trend</div>
+                        <div class="insight-text">Transport costs dropped 31% since last month. Great job using public transit more!</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transactions -->
+            <div class="card transactions-section">
+                <div class="section-header">
+                    <span class="section-title">Recent Transactions</span>
+                    <button class="btn btn-ghost" style="padding: 6px 14px; font-size: 12px;">View All</button>
+                </div>
+                <div class="transaction-list" id="transaction-list">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Category Chart -->
+            <div class="card chart-card">
+                <div class="section-title">By Category</div>
+                <div class="donut-chart">
+                    <svg width="200" height="200" viewBox="0 0 200 200" id="donut-svg">
+                    </svg>
+                    <div class="donut-center">
+                        <div class="amount" id="donut-total">$2,220</div>
+                        <div class="label">Total Spent</div>
+                    </div>
+                </div>
+                <div class="chart-legend" id="chart-legend">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Expense Modal -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <h2>Add Transaction</h2>
+            <div class="type-toggle">
+                <button class="type-btn active-expense" id="type-expense" onclick="setType('expense')">Expense</button>
+                <button class="type-btn" id="type-income" onclick="setType('income')">Income</button>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <input type="text" id="tx-desc" placeholder="e.g., Groceries at Whole Foods">
+            </div>
+            <div class="form-group">
+                <label>Amount ($)</label>
+                <input type="number" id="tx-amount" placeholder="0.00" step="0.01">
+            </div>
+            <div class="form-group">
+                <label>Category</label>
+                <select id="tx-category">
+                    <option value="food">🍔 Food & Dining</option>
+                    <option value="transport">🚗 Transport</option>
+                    <option value="shopping">🛍️ Shopping</option>
+                    <option value="entertainment">🎬 Entertainment</option>
+                    <option value="bills">📄 Bills & Utilities</option>
+                    <option value="health">💊 Health</option>
+                    <option value="salary">💰 Salary</option>
+                    <option value="freelance">💻 Freelance</option>
+                    <option value="other">📦 Other</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="addTransaction()">Add Transaction</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Chat -->
+    <button class="ai-chat-toggle" onclick="toggleChat()">✨</button>
+    <div class="ai-chat-panel" id="ai-chat">
+        <div class="chat-header">
+            <span class="ai-badge">AI</span>
+            <h3>SpendWise Assistant</h3>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <div class="chat-msg ai">
+                <div class="bubble">Hi! I'm your AI spending assistant. Ask me anything about your finances — like "How much did I spend on food?" or "Give me savings tips."</div>
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Ask about your finances..." onkeypress="if(event.key==='Enter')sendChat()">
+            <button onclick="sendChat()">→</button>
+        </div>
+    </div>
+
+    <script>
+        // ========== DATA ==========
+        const categoryConfig = {
+            food: { icon: '🍔', color: '#ff6b6b', name: 'Food & Dining' },
+            transport: { icon: '🚗', color: '#feca57', name: 'Transport' },
+            shopping: { icon: '🛍️', color: '#6c5ce7', name: 'Shopping' },
+            entertainment: { icon: '🎬', color: '#00cec9', name: 'Entertainment' },
+            bills: { icon: '📄', color: '#fd79a8', name: 'Bills & Utilities' },
+            health: { icon: '💊', color: '#55efc4', name: 'Health' },
+            salary: { icon: '💰', color: '#00b894', name: 'Salary' },
+            freelance: { icon: '💻', color: '#0984e3', name: 'Freelance' },
+            other: { icon: '📦', color: '#a29bfe', name: 'Other' }
+        };
+
+        let transactions = [
+            { id: 1, desc: 'Salary - February', amount: 5200, type: 'income', category: 'salary', date: '2026-02-01' },
+            { id: 2, desc: 'Freelance Project', amount: 800, type: 'income', category: 'freelance', date: '2026-02-03' },
+            { id: 3, desc: 'Side Gig Payment', amount: 500, type: 'income', category: 'freelance', date: '2026-02-05' },
+            { id: 4, desc: 'Whole Foods Groceries', amount: 127.50, type: 'expense', category: 'food', date: '2026-02-10' },
+            { id: 5, desc: 'Uber Rides', amount: 45.00, type: 'expense', category: 'transport', date: '2026-02-09' },
+            { id: 6, desc: 'Netflix + Spotify', amount: 28.00, type: 'expense', category: 'entertainment', date: '2026-02-08' },
+            { id: 7, desc: 'New Running Shoes', amount: 189.00, type: 'expense', category: 'shopping', date: '2026-02-07' },
+            { id: 8, desc: 'Electric Bill', amount: 95.00, type: 'expense', category: 'bills', date: '2026-02-06' },
+            { id: 9, desc: 'Dinner at Ramen House', amount: 42.00, type: 'expense', category: 'food', date: '2026-02-11' },
+            { id: 10, desc: 'Gas Station', amount: 68.00, type: 'expense', category: 'transport', date: '2026-02-12' },
+            { id: 11, desc: 'Amazon Prime', amount: 14.99, type: 'expense', category: 'shopping', date: '2026-02-04' },
+            { id: 12, desc: 'Gym Membership', amount: 50.00, type: 'expense', category: 'health', date: '2026-02-01' },
+            { id: 13, desc: 'Movie Tickets', amount: 32.00, type: 'expense', category: 'entertainment', date: '2026-02-13' },
+            { id: 14, desc: 'Internet Bill', amount: 79.99, type: 'expense', category: 'bills', date: '2026-02-02' },
+            { id: 15, desc: 'Coffee & Pastries', amount: 18.50, type: 'expense', category: 'food', date: '2026-02-13' },
+            { id: 16, desc: 'Phone Case', amount: 29.99, type: 'expense', category: 'shopping', date: '2026-02-11' },
+            { id: 17, desc: 'Parking', amount: 12.00, type: 'expense', category: 'transport', date: '2026-02-10' },
+            { id: 18, desc: 'Vitamins', amount: 24.99, type: 'expense', category: 'health', date: '2026-02-09' },
+            { id: 19, desc: 'Takeout Sushi', amount: 38.00, type: 'expense', category: 'food', date: '2026-02-12' },
+            { id: 20, desc: 'Bookstore', amount: 22.50, type: 'expense', category: 'entertainment', date: '2026-02-08' }
+        ];
+
+        let currentType = 'expense';
+
+        // ========== RENDER FUNCTIONS ==========
+        function renderAll() {
+            renderSummary();
+            renderTransactions();
+            renderDonut();
+            updateInsights();
+        }
+
+        function renderSummary() {
+            const income = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+            const expenses = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+            const balance = income - expenses;
+
+            document.getElementById('total-balance').textContent = formatMoney(balance);
+            document.getElementById('total-income').textContent = formatMoney(income);
+            document.getElementById('total-expenses').textContent = formatMoney(expenses);
+        }
+
+        function renderTransactions() {
+            const list = document.getElementById('transaction-list');
+            const sorted = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            list.innerHTML = sorted.slice(0, 8).map(tx => {
+                const cat = categoryConfig[tx.category];
+                const isExpense = tx.type === 'expense';
+                return `
+                    <div class="transaction-item">
+                        <div class="tx-icon" style="background:${cat.color}20">${cat.icon}</div>
+                        <div class="tx-details">
+                            <div class="tx-name">${tx.desc}</div>
+                            <div class="tx-category">${cat.name}</div>
+                        </div>
+                        <div>
+                            <div class="tx-amount ${tx.type}">${isExpense ? '-' : '+'}${formatMoney(tx.amount)}</div>
+                            <div class="tx-date">${formatDate(tx.date)}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderDonut() {
+            const expenses = transactions.filter(t => t.type === 'expense');
+            const totalExpenses = expenses.reduce((s, t) => s + t.amount, 0);
+
+            // Group by category
+            const grouped = {};
+            expenses.forEach(t => {
+                grouped[t.category] = (grouped[t.category] || 0) + t.amount;
+            });
+
+            const entries = Object.entries(grouped).sort((a, b) => b[1] - a[1]);
+            const svg = document.getElementById('donut-svg');
+            const legend = document.getElementById('chart-legend');
+
+            // Draw donut
+            const cx = 100, cy = 100, r = 80, strokeWidth = 24;
+            const circumference = 2 * Math.PI * r;
+            let offset = 0;
+
+            svg.innerHTML = entries.map(([cat, amount]) => {
+                const pct = amount / totalExpenses;
+                const dash = pct * circumference;
+                const gap = circumference - dash;
+                const color = categoryConfig[cat].color;
+                const circle = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none"
+                    stroke="${color}" stroke-width="${strokeWidth}"
+                    stroke-dasharray="${dash} ${gap}"
+                    stroke-dashoffset="-${offset}"
+                    style="transition: all 0.5s ease"/>`;
+                offset += dash;
+                return circle;
+            }).join('');
+
+            // Legend
+            legend.innerHTML = entries.map(([cat, amount]) => `
+                <div class="legend-item">
+                    <div style="display:flex;align-items:center">
+                        <div class="legend-dot" style="background:${categoryConfig[cat].color}"></div>
+                        <span class="legend-name">${categoryConfig[cat].name}</span>
+                    </div>
+                    <span class="legend-value">${formatMoney(amount)}</span>
+                </div>
+            `).join('');
+
+            document.getElementById('donut-total').textContent = formatMoney(totalExpenses);
+        }
+
+        function updateInsights() {
+            const expenses = transactions.filter(t => t.type === 'expense');
+            const income = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+            const totalExpenses = expenses.reduce((s, t) => s + t.amount, 0);
+
+            // Group by category
+            const grouped = {};
+            expenses.forEach(t => {
+                grouped[t.category] = (grouped[t.category] || 0) + t.amount;
+            });
+
+            const topCategory = Object.entries(grouped).sort((a, b) => b[1] - a[1])[0];
+            const savingsRate = ((income - totalExpenses) / income * 100).toFixed(0);
+
+            const insights = [
+                {
+                    icon: '🎯',
+                    title: 'Top Spending',
+                    text: `${categoryConfig[topCategory[0]].name} is your biggest expense at ${formatMoney(topCategory[1])} (${(topCategory[1]/totalExpenses*100).toFixed(0)}% of total). Set a budget alert!`
+                },
+                {
+                    icon: '💡',
+                    title: 'Savings Rate',
+                    text: `You're saving ${savingsRate}% of your income. ${savingsRate > 30 ? 'Excellent! Keep it up!' : savingsRate > 20 ? 'Good, but aim for 30%+.' : 'Try to reduce discretionary spending.'}`
+                },
+                {
+                    icon: '📈',
+                    title: 'Smart Tip',
+                    text: expenses.length > 10
+                        ? `You've made ${expenses.length} transactions this month. Consider batching errands to reduce impulse purchases.`
+                        : `Only ${expenses.length} expenses so far. You're being mindful with spending!`
+                }
+            ];
+
+            document.getElementById('insights-container').innerHTML = insights.map(i => `
+                <div class="insight-item">
+                    <div class="insight-icon">${i.icon}</div>
+                    <div class="insight-title">${i.title}</div>
+                    <div class="insight-text">${i.text}</div>
+                </div>
+            `).join('');
+        }
+
+        // ========== MODAL ==========
+        function openModal() {
+            document.getElementById('modal-overlay').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.remove('active');
+            document.getElementById('tx-desc').value = '';
+            document.getElementById('tx-amount').value = '';
+        }
+
+        function setType(type) {
+            currentType = type;
+            document.getElementById('type-expense').className = `type-btn ${type === 'expense' ? 'active-expense' : ''}`;
+            document.getElementById('type-income').className = `type-btn ${type === 'income' ? 'active-income' : ''}`;
+        }
+
+        function addTransaction() {
+            const desc = document.getElementById('tx-desc').value.trim();
+            const amount = parseFloat(document.getElementById('tx-amount').value);
+            const category = document.getElementById('tx-category').value;
+
+            if (!desc || !amount) return alert('Please fill all fields');
+
+            transactions.push({
+                id: Date.now(),
+                desc,
+                amount,
+                type: currentType,
+                category,
+                date: new Date().toISOString().split('T')[0]
+            });
+
+            closeModal();
+            renderAll();
+        }
+
+        // ========== AI CHAT ==========
+        function toggleChat() {
+            document.getElementById('ai-chat').classList.toggle('active');
+        }
+
+        function sendChat() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            addChatMsg(msg, 'user');
+            input.value = '';
+
+            // Simple AI response logic (simulated)
+            setTimeout(() => {
+                const response = generateAIResponse(msg);
+                addChatMsg(response, 'ai');
+            }, 600);
+        }
+
+        function addChatMsg(text, sender) {
+            const container = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.className = `chat-msg ${sender}`;
+            div.innerHTML = `<div class="bubble">${text}</div>`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function generateAIResponse(query) {
+            const q = query.toLowerCase();
+            const expenses = transactions.filter(t => t.type === 'expense');
+            const totalExpenses = expenses.reduce((s, t) => s + t.amount, 0);
+            const income = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+
+            // Group by category
+            const grouped = {};
+            expenses.forEach(t => {
+                grouped[t.category] = (grouped[t.category] || 0) + t.amount;
+            });
+
+            if (q.includes('food') || q.includes('eat') || q.includes('dining')) {
+                const food = grouped.food || 0;
+                return `You've spent <strong>${formatMoney(food)}</strong> on food this month (${(food/totalExpenses*100).toFixed(0)}% of expenses). That's about ${formatMoney(food/13)} per day. Consider cooking more at home to save!`;
+            }
+            if (q.includes('save') || q.includes('saving') || q.includes('tip')) {
+                const savings = income - totalExpenses;
+                return `You're saving <strong>${formatMoney(savings)}</strong> this month (${(savings/income*100).toFixed(0)}% rate). Top tips: 1) Cut streaming services you don't use, 2) Meal prep on Sundays, 3) Use public transit more. Aim for a 30%+ savings rate!`;
+            }
+            if (q.includes('total') || q.includes('spent') || q.includes('expense')) {
+                return `Total expenses this month: <strong>${formatMoney(totalExpenses)}</strong> across ${expenses.length} transactions. Your top categories: ${Object.entries(grouped).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([c,a])=>`${categoryConfig[c].name} (${formatMoney(a)})`).join(', ')}.`;
+            }
+            if (q.includes('income') || q.includes('earn')) {
+                return `Your total income this month is <strong>${formatMoney(income)}</strong>. After expenses of ${formatMoney(totalExpenses)}, you have ${formatMoney(income-totalExpenses)} remaining.`;
+            }
+            if (q.includes('budget') || q.includes('plan')) {
+                return `Based on your spending patterns, I'd suggest: Food ${formatMoney(250)}, Transport ${formatMoney(150)}, Shopping ${formatMoney(200)}, Entertainment ${formatMoney(100)}, Bills ${formatMoney(200)}, Health ${formatMoney(80)}. Total budget: ${formatMoney(980)}. That leaves ${formatMoney(income-980)} for savings!`;
+            }
+            return `I can help you with: your spending by category, savings tips, budget planning, income summary, or expense analysis. What would you like to know? 💡`;
+        }
+
+        // ========== UTILITIES ==========
+        function formatMoney(n) {
+            return '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        function formatDate(dateStr) {
+            const d = new Date(dateStr);
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        function exportData() {
+            let csv = 'Date,Description,Type,Category,Amount\n';
+            transactions.forEach(t => {
+                csv += `${t.date},"${t.desc}",${t.type},${t.category},${t.amount}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'spendwise_export.csv';
+            a.click();
+        }
+
+        // Close modal on overlay click
+        document.getElementById('modal-overlay').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeModal();
+        });
+
+        // Initialize
+        renderAll();
+    </script>
+</body>
+</html>

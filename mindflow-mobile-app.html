@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MindFlow - AI Mood & Wellness Journal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #FBF8F3;
+            --card: #FFFFFF;
+            --primary: #6C63FF;
+            --primary-light: rgba(108, 99, 255, 0.1);
+            --secondary: #FF8C6B;
+            --mint: #4ECDC4;
+            --rose: #FF6B8A;
+            --golden: #FFD93D;
+            --lavender: #C3AED6;
+            --text: #1A1A2E;
+            --text-dim: #9B9BAD;
+            --shadow: rgba(0, 0, 0, 0.06);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Mobile Frame */
+        .phone-frame {
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        /* Header */
+        .header {
+            padding: 16px 20px 0;
+        }
+
+        .greeting-small {
+            font-size: 13px;
+            color: var(--text-dim);
+            font-weight: 600;
+        }
+
+        .greeting-big {
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+            margin-top: 2px;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--lavender), var(--primary-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+        }
+
+        /* Quick Check-In Card */
+        .checkin-card {
+            margin: 20px;
+            padding: 24px;
+            background: linear-gradient(135deg, var(--primary), #8B7FFF);
+            border-radius: 24px;
+            color: white;
+            box-shadow: 0 8px 30px rgba(108, 99, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .checkin-card::before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .checkin-card::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: -20px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .checkin-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .mood-selector {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            z-index: 1;
+        }
+
+        .mood-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .mood-btn:hover, .mood-btn.selected {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: white;
+            transform: scale(1.15);
+        }
+
+        .mood-label {
+            text-align: center;
+            font-size: 10px;
+            margin-top: 4px;
+            opacity: 0.8;
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: flex;
+            gap: 12px;
+            padding: 0 20px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: var(--card);
+            border-radius: 18px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 2px 12px var(--shadow);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:active { transform: scale(0.97); }
+
+        .stat-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            font-size: 18px;
+        }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-dim);
+            font-weight: 600;
+        }
+
+        /* Section Title */
+        .section-title {
+            padding: 0 20px;
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+
+        /* Mood Chart */
+        .chart-container {
+            margin: 0 20px 24px;
+            background: var(--card);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 2px 12px var(--shadow);
+        }
+
+        .chart-area {
+            height: 140px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 6px;
+            padding-bottom: 24px;
+            position: relative;
+        }
+
+        .chart-bar-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chart-bar {
+            width: 100%;
+            max-width: 36px;
+            border-radius: 10px;
+            transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            cursor: pointer;
+        }
+
+        .chart-bar:hover {
+            filter: brightness(1.1);
+        }
+
+        .chart-bar .emoji {
+            position: absolute;
+            top: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px;
+        }
+
+        .chart-day {
+            font-size: 11px;
+            color: var(--text-dim);
+            font-weight: 600;
+        }
+
+        /* AI Insight Card */
+        .ai-card {
+            margin: 0 20px 24px;
+            background: linear-gradient(135deg, #FFF3E6, #FFE8F0);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid rgba(255, 140, 107, 0.2);
+        }
+
+        .ai-badge-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .ai-badge {
+            background: var(--secondary);
+            color: white;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        .ai-title {
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .ai-text {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #4A4A5A;
+        }
+
+        /* Journal Entries */
+        .entries-list {
+            padding: 0 20px;
+        }
+
+        .entry-card {
+            background: var(--card);
+            border-radius: 18px;
+            padding: 18px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 12px var(--shadow);
+            display: flex;
+            gap: 14px;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .entry-card:active { transform: scale(0.98); }
+
+        .entry-emoji {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .entry-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .entry-date {
+            font-size: 11px;
+            color: var(--text-dim);
+            font-weight: 600;
+        }
+
+        .entry-text {
+            font-size: 14px;
+            line-height: 1.4;
+            margin-top: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .entry-tags {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .entry-score {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .score-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #DDD;
+        }
+
+        .score-dot.filled { background: var(--primary); }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 430px;
+            background: white;
+            padding: 8px 20px 20px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+            border-radius: 24px 24px 0 0;
+            z-index: 50;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            cursor: pointer;
+            padding: 4px 12px;
+            transition: all 0.2s;
+        }
+
+        .nav-item.active .nav-icon { color: var(--primary); }
+        .nav-item.active .nav-label { color: var(--primary); }
+
+        .nav-icon {
+            font-size: 22px;
+            color: var(--text-dim);
+        }
+
+        .nav-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-dim);
+        }
+
+        .nav-fab {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 4px 20px rgba(108, 99, 255, 0.4);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: -20px;
+        }
+
+        .nav-fab:active { transform: scale(0.95); }
+
+        /* Wellness Trackers */
+        .wellness-row {
+            display: flex;
+            gap: 12px;
+            padding: 0 20px;
+            margin-bottom: 24px;
+        }
+
+        .wellness-card {
+            flex: 1;
+            background: var(--card);
+            border-radius: 18px;
+            padding: 16px;
+            box-shadow: 0 2px 12px var(--shadow);
+        }
+
+        .wellness-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .wellness-icon {
+            font-size: 20px;
+        }
+
+        .wellness-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-dim);
+        }
+
+        .wellness-value {
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .wellness-unit {
+            font-size: 13px;
+            color: var(--text-dim);
+            font-weight: 600;
+        }
+
+        .wellness-progress {
+            height: 6px;
+            background: #F0F0F5;
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .wellness-progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.6s ease;
+        }
+
+        /* Add Entry Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(6px);
+            z-index: 100;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-sheet {
+            background: var(--bg);
+            width: 100%;
+            max-width: 430px;
+            max-height: 85vh;
+            border-radius: 28px 28px 0 0;
+            padding: 24px;
+            overflow-y: auto;
+            animation: sheetUp 0.3s ease-out;
+        }
+
+        @keyframes sheetUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .sheet-handle {
+            width: 40px;
+            height: 4px;
+            background: #DDD;
+            border-radius: 2px;
+            margin: 0 auto 20px;
+        }
+
+        .sheet-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #EEE;
+            border-radius: 14px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s;
+            background: white;
+            color: var(--text);
+        }
+
+        .input-field:focus { border-color: var(--primary); }
+
+        textarea.input-field {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .tag-input-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag-chip {
+            padding: 8px 14px;
+            border-radius: 20px;
+            border: 2px solid #EEE;
+            background: white;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tag-chip.selected {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+            box-shadow: 0 4px 20px rgba(108, 99, 255, 0.3);
+            transition: all 0.2s;
+        }
+
+        .submit-btn:active { transform: scale(0.98); }
+
+        /* Pages */
+        .page { display: none; }
+        .page.active { display: block; }
+
+        /* Insights Page */
+        .insight-big-card {
+            margin: 0 20px 16px;
+            background: var(--card);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 2px 12px var(--shadow);
+        }
+
+        .insight-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #F0F0F5;
+        }
+
+        .insight-metric:last-child { border: none; }
+
+        .insight-metric-label {
+            font-size: 14px;
+            color: var(--text-dim);
+            font-weight: 600;
+        }
+
+        .insight-metric-value {
+            font-size: 16px;
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <!-- PAGE: HOME -->
+        <div class="page active" id="page-home">
+            <div class="header">
+                <div class="header-row">
+                    <div>
+                        <div class="greeting-small" id="greeting-time">Good Morning 👋</div>
+                        <div class="greeting-big">How are you?</div>
+                    </div>
+                    <div class="avatar" id="today-avatar">😊</div>
+                </div>
+            </div>
+
+            <!-- Quick Check-In -->
+            <div class="checkin-card">
+                <div class="checkin-title">Quick Check-In</div>
+                <div class="mood-selector">
+                    <div>
+                        <div class="mood-btn" onclick="quickMood(1, '😢')">😢</div>
+                        <div class="mood-label">Awful</div>
+                    </div>
+                    <div>
+                        <div class="mood-btn" onclick="quickMood(2, '😔')">😔</div>
+                        <div class="mood-label">Bad</div>
+                    </div>
+                    <div>
+                        <div class="mood-btn" onclick="quickMood(3, '😐')">😐</div>
+                        <div class="mood-label">Okay</div>
+                    </div>
+                    <div>
+                        <div class="mood-btn" onclick="quickMood(4, '😊')">😊</div>
+                        <div class="mood-label">Good</div>
+                    </div>
+                    <div>
+                        <div class="mood-btn" onclick="quickMood(5, '🥳')">🥳</div>
+                        <div class="mood-label">Great!</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(255, 217, 61, 0.2)">⭐</div>
+                    <div class="stat-value" id="avg-mood">3.6</div>
+                    <div class="stat-label">Avg Mood</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(78, 205, 196, 0.2)">🔥</div>
+                    <div class="stat-value" id="streak-count">7</div>
+                    <div class="stat-label">Day Streak</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(255, 107, 138, 0.2)">📝</div>
+                    <div class="stat-value" id="entry-count">7</div>
+                    <div class="stat-label">Entries</div>
+                </div>
+            </div>
+
+            <!-- Wellness -->
+            <div class="section-title">Today's Wellness</div>
+            <div class="wellness-row">
+                <div class="wellness-card">
+                    <div class="wellness-header">
+                        <span class="wellness-icon">😴</span>
+                        <span class="wellness-label">Sleep</span>
+                    </div>
+                    <div><span class="wellness-value">7.0</span> <span class="wellness-unit">hrs</span></div>
+                    <div class="wellness-progress">
+                        <div class="wellness-progress-fill" style="width: 88%; background: var(--primary)"></div>
+                    </div>
+                </div>
+                <div class="wellness-card">
+                    <div class="wellness-header">
+                        <span class="wellness-icon">💧</span>
+                        <span class="wellness-label">Water</span>
+                    </div>
+                    <div><span class="wellness-value">4</span> <span class="wellness-unit">/ 8 cups</span></div>
+                    <div class="wellness-progress">
+                        <div class="wellness-progress-fill" style="width: 50%; background: var(--mint)"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Week Chart -->
+            <div class="section-title">This Week</div>
+            <div class="chart-container">
+                <div class="chart-area" id="mood-chart"></div>
+            </div>
+
+            <!-- AI Insight -->
+            <div class="ai-card">
+                <div class="ai-badge-row">
+                    <span class="ai-badge">AI INSIGHT</span>
+                    <span class="ai-title">Weekly Summary</span>
+                </div>
+                <div class="ai-text" id="ai-weekly">
+                    Your mood has been trending upward this week! Exercise days correlate strongly with higher mood scores. The promotion celebration was a high point — savor that accomplishment. Tip: Keep up the morning yoga routine, it's clearly working. 🌟
+                </div>
+            </div>
+
+            <!-- Recent Entries -->
+            <div class="section-title">Recent Entries</div>
+            <div class="entries-list" id="entries-home"></div>
+        </div>
+
+        <!-- PAGE: JOURNAL -->
+        <div class="page" id="page-journal">
+            <div class="header" style="padding-top: 20px;">
+                <div class="greeting-big">Journal</div>
+                <div class="greeting-small" style="margin-top: 4px;" id="journal-count">7 entries this month</div>
+            </div>
+            <div style="height: 16px"></div>
+            <div class="entries-list" id="entries-journal"></div>
+        </div>
+
+        <!-- PAGE: INSIGHTS -->
+        <div class="page" id="page-insights">
+            <div class="header" style="padding-top: 20px;">
+                <div class="greeting-big">Insights</div>
+                <div class="greeting-small" style="margin-top: 4px;">AI-powered wellness analytics</div>
+            </div>
+            <div style="height: 20px"></div>
+
+            <div class="section-title">Mood Overview</div>
+            <div class="insight-big-card">
+                <div class="insight-metric">
+                    <span class="insight-metric-label">Average Mood</span>
+                    <span class="insight-metric-value" style="color: var(--primary)" id="insight-avg">3.6 / 5</span>
+                </div>
+                <div class="insight-metric">
+                    <span class="insight-metric-label">Best Day</span>
+                    <span class="insight-metric-value" id="insight-best">🥳 Yesterday</span>
+                </div>
+                <div class="insight-metric">
+                    <span class="insight-metric-label">Most Common Mood</span>
+                    <span class="insight-metric-value" id="insight-common">😊 Good</span>
+                </div>
+                <div class="insight-metric">
+                    <span class="insight-metric-label">Exercise Days</span>
+                    <span class="insight-metric-value" style="color: var(--mint)" id="insight-exercise">4 / 7</span>
+                </div>
+                <div class="insight-metric">
+                    <span class="insight-metric-label">Avg Sleep</span>
+                    <span class="insight-metric-value" id="insight-sleep">6.8 hrs</span>
+                </div>
+            </div>
+
+            <div class="section-title">Top Tags</div>
+            <div style="padding: 0 20px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px;">
+                <span class="tag" style="font-size: 13px; padding: 6px 14px;">🏋️ exercise (4)</span>
+                <span class="tag" style="font-size: 13px; padding: 6px 14px; background: rgba(78,205,196,0.1); color: var(--mint);">🧘 mindful (3)</span>
+                <span class="tag" style="font-size: 13px; padding: 6px 14px; background: rgba(255,107,138,0.1); color: var(--rose);">😓 stress (2)</span>
+                <span class="tag" style="font-size: 13px; padding: 6px 14px; background: rgba(255,217,61,0.15); color: #C5A000;">🎉 social (3)</span>
+                <span class="tag" style="font-size: 13px; padding: 6px 14px;">🌿 nature (2)</span>
+            </div>
+
+            <div class="ai-card">
+                <div class="ai-badge-row">
+                    <span class="ai-badge">AI</span>
+                    <span class="ai-title">Pattern Analysis</span>
+                </div>
+                <div class="ai-text">
+                    <strong>Key findings:</strong> Your mood is 40% higher on exercise days. Sleep under 6 hours consistently precedes lower mood scores. Social interactions boost your mood, especially combined with outdoor activities. Consider establishing a consistent sleep schedule as your #1 improvement area.
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE: PROFILE -->
+        <div class="page" id="page-profile">
+            <div class="header" style="padding-top: 20px;">
+                <div style="text-align: center; padding: 20px 0;">
+                    <div class="avatar" style="width: 80px; height: 80px; font-size: 44px; margin: 0 auto 12px; border-radius: 24px;">😊</div>
+                    <div class="greeting-big" style="font-size: 22px;">Your Journey</div>
+                    <div class="greeting-small">Member since Feb 2026</div>
+                </div>
+            </div>
+
+            <div class="insight-big-card">
+                <div class="insight-metric">
+                    <span class="insight-metric-label">Total Entries</span>
+                    <span class="insight-metric-value">7</span>
+                </div>
+                <div class="insight-metric">
+                    <span class="insight-metric-label">Longest Streak</span>
+                    <span class="insight-metric-value">7 days 🔥</span>
+                </div>
+                <div class="insight-metric">
+                    <span class="insight-metric-label">Favorite Tag</span>
+                    <span class="insight-metric-value">exercise 🏋️</span>
+                </div>
+                <div class="insight-metric">
+                    <span class="insight-metric-label">AI Insights Received</span>
+                    <span class="insight-metric-value">7</span>
+                </div>
+            </div>
+
+            <div style="padding: 20px; text-align: center;">
+                <div style="font-size: 13px; color: var(--text-dim); margin-top: 20px;">
+                    MindFlow v1.0 • Built with Flutter + Gemini AI<br>
+                    CMPE-258 Assignment 1 - Part C
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Entry Modal -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal-sheet">
+            <div class="sheet-handle"></div>
+            <div class="sheet-title">New Entry</div>
+
+            <div class="input-group">
+                <div class="input-label">How are you feeling?</div>
+                <div class="mood-selector" style="justify-content: flex-start; gap: 10px;">
+                    <div class="mood-btn" onclick="selectModalMood(1, '😢', this)" style="width:48px;height:48px;font-size:24px;background:rgba(108,99,255,0.08)">😢</div>
+                    <div class="mood-btn" onclick="selectModalMood(2, '😔', this)" style="width:48px;height:48px;font-size:24px;background:rgba(108,99,255,0.08)">😔</div>
+                    <div class="mood-btn" onclick="selectModalMood(3, '😐', this)" style="width:48px;height:48px;font-size:24px;background:rgba(108,99,255,0.08)">😐</div>
+                    <div class="mood-btn" onclick="selectModalMood(4, '😊', this)" style="width:48px;height:48px;font-size:24px;background:rgba(108,99,255,0.08)">😊</div>
+                    <div class="mood-btn" onclick="selectModalMood(5, '🥳', this)" style="width:48px;height:48px;font-size:24px;background:rgba(108,99,255,0.08)">🥳</div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <div class="input-label">What's on your mind?</div>
+                <textarea class="input-field" id="journal-input" placeholder="Write about your day..."></textarea>
+            </div>
+
+            <div class="input-group">
+                <div class="input-label">Tags</div>
+                <div class="tag-input-row" id="tag-selector">
+                    <div class="tag-chip" onclick="toggleTag(this)">🏋️ exercise</div>
+                    <div class="tag-chip" onclick="toggleTag(this)">🧘 mindful</div>
+                    <div class="tag-chip" onclick="toggleTag(this)">👥 social</div>
+                    <div class="tag-chip" onclick="toggleTag(this)">😓 stress</div>
+                    <div class="tag-chip" onclick="toggleTag(this)">🌿 nature</div>
+                    <div class="tag-chip" onclick="toggleTag(this)">💼 work</div>
+                    <div class="tag-chip" onclick="toggleTag(this)">📖 learning</div>
+                    <div class="tag-chip" onclick="toggleTag(this)">🎵 music</div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <div class="input-label">Sleep (hours)</div>
+                <input type="number" class="input-field" id="sleep-input" placeholder="7.5" step="0.5" min="0" max="24">
+            </div>
+
+            <div class="input-group">
+                <div class="input-label">Water (glasses)</div>
+                <input type="number" class="input-field" id="water-input" placeholder="8" min="0" max="20">
+            </div>
+
+            <button class="submit-btn" onclick="addEntry()">Save Entry ✨</button>
+            <button class="submit-btn" onclick="closeModal()" style="background: transparent; color: var(--text-dim); box-shadow: none; margin-top: 4px;">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchPage('home', this)">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Home</span>
+        </div>
+        <div class="nav-item" onclick="switchPage('journal', this)">
+            <span class="nav-icon">📓</span>
+            <span class="nav-label">Journal</span>
+        </div>
+        <div class="nav-fab" onclick="openModal()">+</div>
+        <div class="nav-item" onclick="switchPage('insights', this)">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">Insights</span>
+        </div>
+        <div class="nav-item" onclick="switchPage('profile', this)">
+            <span class="nav-icon">👤</span>
+            <span class="nav-label">Profile</span>
+        </div>
+    </div>
+
+    <script>
+        // ========== DATA ==========
+        const moodColors = {
+            1: '#FF6B8A', 2: '#FF8C6B', 3: '#FFD93D',
+            4: '#4ECDC4', 5: '#6C63FF'
+        };
+
+        const moodEmojis = { 1: '😢', 2: '😔', 3: '😐', 4: '😊', 5: '🥳' };
+
+        let entries = [
+            { id: 1, date: daysAgo(6), score: 4, emoji: '😊', text: 'Great morning workout! Feeling energized and productive. Had a lovely walk in the park after work.', tags: ['exercise', 'nature', 'productive'], sleep: 7.5, water: 8, exercised: true, insight: 'Your mood lifts noticeably when you combine exercise with nature. Keep this routine!' },
+            { id: 2, date: daysAgo(5), score: 3, emoji: '😐', text: 'Stressful day at work. Back-to-back meetings left me drained. At least dinner with friends was nice.', tags: ['work', 'stress', 'social'], sleep: 6, water: 5, exercised: false, insight: 'Social connections helped balance work stress. Consider short breaks between meetings.' },
+            { id: 3, date: daysAgo(4), score: 2, emoji: '😔', text: "Couldn't sleep well last night. Feeling foggy and unmotivated. Just wanted to stay in bed all day.", tags: ['tired', 'sleep', 'low energy'], sleep: 4.5, water: 3, exercised: false, insight: 'Poor sleep directly impacts mood. Try winding down 30 min before bed with no screens.' },
+            { id: 4, date: daysAgo(3), score: 3, emoji: '🤔', text: 'Better than yesterday. Started reading a new book. Also tried meditation for the first time.', tags: ['reading', 'meditation', 'recovery'], sleep: 7, water: 6, exercised: false, insight: 'Meditation was a great recovery step! Even 5 minutes daily compounds into significant benefits.' },
+            { id: 5, date: daysAgo(2), score: 4, emoji: '😄', text: "Productive day! Finished the project I've been working on. Celebrated with a nice homemade dinner.", tags: ['productive', 'cooking', 'achievement'], sleep: 7.5, water: 7, exercised: true, insight: 'Accomplishing goals boosts mood significantly. Break big projects into milestones!' },
+            { id: 6, date: daysAgo(1), score: 5, emoji: '🥳', text: 'Amazing day! Got promoted at work! Celebrated with family. Feeling grateful and excited for the future.', tags: ['career', 'family', 'celebration'], sleep: 8, water: 8, exercised: true, insight: 'What a milestone! Gratitude journaling on good days builds resilience for tougher ones.' },
+            { id: 7, date: daysAgo(0), score: 4, emoji: '😊', text: 'Starting the day with intention. Morning yoga and a good breakfast. Ready to tackle the week!', tags: ['yoga', 'mindful', 'fresh start'], sleep: 7, water: 4, exercised: true, insight: 'Morning routines set the tone for the day. Your consistency is paying off!' },
+        ];
+
+        let modalMoodScore = 0;
+        let modalMoodEmoji = '';
+
+        function daysAgo(n) {
+            const d = new Date();
+            d.setDate(d.getDate() - n);
+            return d;
+        }
+
+        // ========== NAVIGATION ==========
+        function switchPage(page, el) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + page).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            if (el) el.classList.add('active');
+        }
+
+        // ========== RENDER ==========
+        function renderAll() {
+            renderChart();
+            renderEntries('entries-home', 3);
+            renderEntries('entries-journal', entries.length);
+            updateStats();
+            updateGreeting();
+        }
+
+        function renderChart() {
+            const container = document.getElementById('mood-chart');
+            const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            const maxHeight = 100;
+
+            container.innerHTML = entries.slice(-7).map((e, i) => {
+                const height = (e.score / 5) * maxHeight;
+                const color = moodColors[e.score];
+                const day = days[new Date(e.date).getDay() === 0 ? 6 : new Date(e.date).getDay() - 1] ||
+                            new Intl.DateTimeFormat('en', { weekday: 'short' }).format(e.date);
+                return `
+                    <div class="chart-bar-wrapper">
+                        <div class="chart-bar" style="height:${height}px;background:${color};min-height:20px">
+                            <span class="emoji">${e.emoji}</span>
+                        </div>
+                        <span class="chart-day">${day}</span>
+                    </div>`;
+            }).join('');
+        }
+
+        function renderEntries(containerId, limit) {
+            const container = document.getElementById(containerId);
+            const sorted = [...entries].sort((a, b) => b.date - a.date);
+
+            container.innerHTML = sorted.slice(0, limit).map(e => {
+                const bgColor = moodColors[e.score] + '15';
+                const dateStr = new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', weekday: 'short' }).format(e.date);
+                const dots = Array.from({ length: 5 }, (_, i) =>
+                    `<div class="score-dot ${i < e.score ? 'filled' : ''}"></div>`
+                ).join('');
+
+                return `
+                    <div class="entry-card">
+                        <div class="entry-emoji" style="background:${bgColor}">${e.emoji}</div>
+                        <div class="entry-content">
+                            <div style="display:flex;justify-content:space-between;align-items:center">
+                                <div class="entry-date">${dateStr}</div>
+                                <div class="entry-score">${dots}</div>
+                            </div>
+                            <div class="entry-text">${e.text}</div>
+                            <div class="entry-tags">
+                                ${e.tags.slice(0, 3).map(t => `<span class="tag">${t}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        function updateStats() {
+            const avg = (entries.reduce((s, e) => s + e.score, 0) / entries.length).toFixed(1);
+            document.getElementById('avg-mood').textContent = avg;
+            document.getElementById('streak-count').textContent = entries.length;
+            document.getElementById('entry-count').textContent = entries.length;
+            document.getElementById('journal-count').textContent = `${entries.length} entries this month`;
+            document.getElementById('insight-avg').textContent = `${avg} / 5`;
+        }
+
+        function updateGreeting() {
+            const hour = new Date().getHours();
+            const greeting = hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';
+            document.getElementById('greeting-time').textContent = greeting + ' 👋';
+        }
+
+        // ========== INTERACTIONS ==========
+        function quickMood(score, emoji) {
+            document.querySelectorAll('.checkin-card .mood-btn').forEach(b => b.classList.remove('selected'));
+            event.target.classList.add('selected');
+            document.getElementById('today-avatar').textContent = emoji;
+            // Open modal with pre-selected mood
+            modalMoodScore = score;
+            modalMoodEmoji = emoji;
+            setTimeout(() => openModal(), 300);
+        }
+
+        function selectModalMood(score, emoji, el) {
+            modalMoodScore = score;
+            modalMoodEmoji = emoji;
+            el.parentElement.querySelectorAll('.mood-btn').forEach(b => {
+                b.style.background = 'rgba(108,99,255,0.08)';
+                b.style.borderColor = 'transparent';
+            });
+            el.style.background = 'rgba(108,99,255,0.2)';
+            el.style.borderColor = '#6C63FF';
+        }
+
+        function toggleTag(el) {
+            el.classList.toggle('selected');
+        }
+
+        function openModal() {
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+            document.getElementById('journal-input').value = '';
+            document.getElementById('sleep-input').value = '';
+            document.getElementById('water-input').value = '';
+            document.querySelectorAll('.tag-chip').forEach(t => t.classList.remove('selected'));
+            modalMoodScore = 0;
+            modalMoodEmoji = '';
+        }
+
+        function addEntry() {
+            const text = document.getElementById('journal-input').value.trim();
+            if (!modalMoodScore || !text) {
+                alert('Please select a mood and write something!');
+                return;
+            }
+
+            const tags = Array.from(document.querySelectorAll('.tag-chip.selected'))
+                .map(t => t.textContent.trim().split(' ').pop());
+            const sleep = parseFloat(document.getElementById('sleep-input').value) || null;
+            const water = parseInt(document.getElementById('water-input').value) || null;
+
+            const newEntry = {
+                id: Date.now(),
+                date: new Date(),
+                score: modalMoodScore,
+                emoji: modalMoodEmoji,
+                text: text,
+                tags: tags,
+                sleep: sleep,
+                water: water,
+                exercised: tags.includes('exercise'),
+                insight: 'Great job journaling today! Consistency builds self-awareness. 💙'
+            };
+
+            entries.push(newEntry);
+            closeModal();
+            renderAll();
+        }
+
+        // Init
+        renderAll();
+    </script>
+</body>
+</html>
