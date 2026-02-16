@@ -184,7 +184,7 @@ Colab: https://colab.research.google.com/drive/1am1Ovm2xR1P2L6BuwnFLWHY_gNrWnC8d
 ---
 
 ## 📝 Notes
-
+- Important: Web app and mobile app's only html could be added bcz of some error but u can look through the video walkthrough.
 - All artifacts are checked into this GitHub repository
 - Each part has a video walkthrough demonstrating the functionality
 - Part B (Web) and Part C (Mobile) intentionally have **different UI/UX designs** to showcase variety
