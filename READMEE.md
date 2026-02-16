@@ -1,8 +1,14 @@
-# CMPE-258 Assignment 1 - Deep Learning (Spring 2026, Sec 49)
+# CMPE-258 Assignment 2 - Deep Learning (Spring 2026, Sec 49)
 
 ## 📋 Overview
 
-This repository contains all four parts of Assignment 1 for CMPE-258 Deep Learning. Each part demonstrates different aspects of modern AI/ML development including multimodal AI, full-stack web development with AI, cross-platform mobile development, and neural network implementation.
+This repository contains all four parts of Assignment 2 for CMPE-258 Deep Learning. Each part demonstrates different aspects of modern AI/ML development including multimodal AI, full-stack web development with AI, cross-platform mobile development, and neural network implementation.
+
+## Youtube Links:
+- 1) Part A: Multimodal AI with Google Gemini : https://youtu.be/dN8BPRK9Hzs
+- 2) Part B: SpendWise AI - Smart Expense Tracker (Web App): https://youtu.be/oeBcCx95Hn4
+- 3) Part C: MindFlow - AI Mood & Wellness Journal (Mobile App): https://youtu.be/ypGPd7VQGkY
+- 4) Part D: MNIST Neural Network Classifier: https://youtu.be/vGT-1B31Bqc
 
 ---
 
@@ -29,28 +35,21 @@ assignment1/
 ## Part A: Multimodal AI with Google Gemini 🎨
 
 ### Description
-A comprehensive Google Colab notebook demonstrating the latest multimodal AI capabilities using Google's Gemini models.
+A comprehensive Google Colab notebook demonstrating multimodal AI capabilities using Google's Gemini models (Gemini 2.5 Flash / 3 Flash / 2.0 Flash).
 
-### Features Demonstrated (All Free — No API Keys!)
-| Feature | Model | Description |
-|---------|-------|-------------|
-| Image Generation | Stable Diffusion 2.1 | 4 creative images from text (cyberpunk, abstract, nature-tech, miniature) |
-| Image Captioning | BLIP-Large | Automatic descriptions of photos, art, and AI images |
-| Visual QA | BLIP-VQA-Large | Question answering about image content |
-| Zero-Shot Classification | CLIP | Classify images into any custom categories |
-| Text Conversations | Google Gemma 2B | Creative stories, technical explanations, code gen, debates |
-| Image Classification | ViT | Top-5 ImageNet predictions |
-| Attention Visualization | ViT | Where the model focuses (heatmaps) |
+### Features Demonstrated
+- **Text Conversations with Reasoning** – Step-by-step reasoning, creative story writing, and technical explanations using Gemini
+- **Image Analysis (Upload)** – Upload your own image and analyze it with Gemini
+- **Image Analysis (Generated)** – Create a sample image programmatically and analyze it
+- **Image from URL** – Download and analyze images directly from URLs
+- **Multimodal Creative Workflow** – Generate an artistic scene and get AI-powered descriptions
+- **Visual Question Answering** – Ask natural language questions about image content using Gemini
 
 ### How to Run
-1. Open the notebook in [Google Colab](https://colab.google/notebooks/)
+1. Open the notebook in [Google Colab](https://colab.research.google.com/drive/1aZ-1-KYaDJkSQ9-HXDByyBLvJSXRRVDJ?usp=sharing)
 2. Select **GPU runtime** (Runtime → Change runtime type → T4 GPU)
-3. Run all cells sequentially — **no API key needed!**
+3. Configure your Gemini API key when prompted
 
-### Video Walkthrough
-📹 [Link to YouTube walkthrough]
-
----
 
 ## Part B: SpendWise AI - Smart Expense Tracker (Web App) 💰
 
@@ -139,7 +138,7 @@ flutter run
 
 ### Description
 A comprehensive Keras implementation of MNIST digit classification with three model architectures and extensive evaluation metrics, as demonstrated in class.
-
+Colab: https://colab.research.google.com/drive/1am1Ovm2xR1P2L6BuwnFLWHY_gNrWnC8d?usp=sharing
 ### Models
 | Model | Architecture | Key Features |
 |-------|-------------|-------------|
@@ -172,20 +171,6 @@ A comprehensive Keras implementation of MNIST digit classification with three mo
 2. Select GPU runtime (Runtime → Change runtime type → GPU)
 3. Run all cells
 
-### Video Walkthrough
-📹 [Link to YouTube walkthrough]
-
----
-
-## 🎥 Video Walkthroughs
-
-| Part | Description | Link |
-|------|-------------|------|
-| A | Multimodal AI Colab Demo | [YouTube](#) |
-| B | SpendWise Web App Demo | [YouTube](#) |
-| C | MindFlow Mobile App Demo | [YouTube](#) |
-| D | MNIST Classifier Demo | [YouTube](#) |
-
 ---
 
 ## 🛠️ Technologies Used
@@ -203,11 +188,4 @@ A comprehensive Keras implementation of MNIST digit classification with three mo
 - All artifacts are checked into this GitHub repository
 - Each part has a video walkthrough demonstrating the functionality
 - Part B (Web) and Part C (Mobile) intentionally have **different UI/UX designs** to showcase variety
-- **No API keys required** — all AI models are free and open-source (HuggingFace)
 - Part A runs on Colab's free T4 GPU
-
----
-
-## 👤 Author
-
-CMPE-258 Deep Learning - Spring 2026, Section 49
